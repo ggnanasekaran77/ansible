@@ -5,7 +5,7 @@ then
   find playbooks/${playbookPath}/ -maxdepth 1 -type f -exec cp {} . \;
 fi
 
-if [ -f "inventories/${JOB_NAME}/${targetEnv}"]
+if [ -f "inventories/${JOB_NAME}/${targetEnv}" ]
 then
   export extraVars = "-i inventories/${JOB_NAME}/${targetEnv} ${extraVars}"
 fi
