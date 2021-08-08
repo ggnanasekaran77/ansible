@@ -1,0 +1,16 @@
+--- # java_docker_deploy
+- name: Deploy Java App
+  docker_container:
+    name: "{{ app.container.name }}"
+    image: "{{ app.container.image }}"
+    pull: yes
+    recreate: yes
+    stop_timeout: "{{ app.container.stop_timeout }}"
+    restart_policy: always
+    ports:
+      - "{{ app.container.port }}:8080"
+  register: java_deploy
+
+- name: java_deploy
+  debug:
+    var: java_deploy

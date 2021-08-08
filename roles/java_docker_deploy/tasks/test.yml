@@ -1,0 +1,14 @@
+--- # java_docker_deploy test.yml
+- name: Ensure Java Port is Up
+  wait_for:
+    port: "{{ app.container.port }}"
+    delay: 5
+
+- name: Ensure Java App Return status code 200
+  uri:
+    url: "http://localhost:{{ app.container.port }}"
+    method: HEAD
+  register: _result
+  until: _result.status == 200
+  retries: 72
+  delay: 5

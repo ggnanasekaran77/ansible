@@ -1,0 +1,8 @@
+[prd1]
+ggnanasekaran.com
+[prd2]
+ggnanasekaran.com
+
+[app:children]
+prd1
+prd2

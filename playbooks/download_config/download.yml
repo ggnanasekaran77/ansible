@@ -1,0 +1,45 @@
+--- #download.yml
+- name: download.yml
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  tasks:
+    - name: Create group_vars folder
+      file:
+        state: directory
+        path: "{{ playbook_dir }}/group_vars"
+
+    - name: Delete old all.yml default.yml
+      file:
+        state: absent
+        path: "{{ playbook_dir }}/group_vars/{{ item }}"
+      with_items:
+        - "all.yml"
+        - "default.yml"
+
+    - name: set_fact varsRepoName and targetEnv
+      set_fact:
+        varsRepoName: "{{ varsRepoName | default (lookup('env','varsRepoName'), true) | replace('\n', '') }}"
+        varsAppName: "{{ varsAppName | default (lookup('env','varsAppName'), true) | replace('\n', '') }}"
+        targetEnv: "{{ lookup('env','targetEnv') | replace('\n', '') }}"
+
+    - name: set_fact for config_profile and config_label
+      set_fact:
+        config_label: "{{ config_label | default (lookup('env','config_label')) | default('master', true) }}"
+        config_profile: "{{ config_profile | default (lookup('env','config_profile')) | default (targetEnv + ',' + targetEnvGroup + ',' + varsAppName + ',' + varsAppName + '_' + targetEnv, true) | replace('-', '_')}}"
+        configserver_url: "{{ lookup('env','configserver_url') | default ('http://configserver:8888', true) }}"
+
+    - name: set_fact for run_config_profile
+      set_fact:
+        config_profile: "{{ config_profile }},{{ run_config_profile }}"
+      when: run_config_profile is defined
+
+    - debug:
+        msg: "{{ configserver_url }}/{{ config_label }}/{{ varsRepoName }}-default,{{ config_profile }}.yml"
+
+    - name: "Get group variables {{ configserver_url }}/{{ config_label }}/{{ varsRepoName }}-default,{{ config_profile }}.yml"
+      get_url:
+        url: "{{ configserver_url }}/{{ config_label }}/{{ varsRepoName }}-default,{{ config_profile }}.yml"
+        dest: "{{ playbook_dir }}/group_vars/all.yml"
+        timeout: 120
+

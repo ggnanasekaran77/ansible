@@ -1,0 +1,3 @@
+--- # java_docker_deploy main.yml
+- include: do.yml
+- include: test.yml
